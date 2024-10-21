@@ -13,6 +13,7 @@ class RecordDisplay extends StatefulWidget {
 
 class _RecordDisplayState extends State<RecordDisplay> {
   late RecordDisplayLogic _logic;
+  String serverResponse = ''; // Variable to hold the server response
 
   @override
   void initState() {
@@ -35,6 +36,14 @@ class _RecordDisplayState extends State<RecordDisplay> {
         }
       });
     }
+  }
+
+  // Method to send data to server and update response
+  Future<void> _sendDataToServer() async {
+    await _logic.sendAllDataToServer();
+    setState(() {
+      serverResponse = 'Data sent successfully!'; // Set success message
+    });
   }
 
   @override
@@ -151,7 +160,7 @@ class _RecordDisplayState extends State<RecordDisplay> {
             ),
             const SizedBox(height: 16),
 
-            // Buttons for "Read" and "Reset"
+            // Buttons for "Read", "Reset", and "Send Data"
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -169,7 +178,20 @@ class _RecordDisplayState extends State<RecordDisplay> {
                   },
                   child: const Text('Reset'),
                 ),
+                ElevatedButton(
+                  onPressed: () async {
+                    await _sendDataToServer();
+                  },
+                  child: const Text('Send Data'),
+                ),
               ],
+            ),
+            const SizedBox(height: 16),
+
+            // Display server response
+            Text(
+              serverResponse,
+              style: const TextStyle(color: Colors.green, fontSize: 16),
             ),
           ],
         ),

@@ -1,5 +1,7 @@
 import 'package:flutter_health_connect/flutter_health_connect.dart';
 import 'package:flutter/material.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 class RecordDisplayLogic {
   final Function(String) onResultUpdate;
@@ -138,7 +140,8 @@ class RecordDisplayLogic {
             return 'Unknown record type';
         }
       }).toList();
-// Helper method to extract DateTime from record string
+
+      // Helper method to extract DateTime from record string
       DateTime _extractDateTimeFromRecord(String record) {
         // Example: "Heart Rate: 101 BPM at 2024-10-04 06:20:00.000"
         var dateTimeString =
@@ -165,11 +168,123 @@ class RecordDisplayLogic {
         });
       }
 
-// Update the results
-
+      // Update the results
       onResultUpdate(formattedRecords.join("\n\n"));
     } else {
       onResultUpdate('No records found for ${selectedDataType!.name}.');
+    }
+  }
+
+  // Fetch all health connect data (you need to implement this based on your data structure)
+  Future<List<Map<String, dynamic>>> fetchAllHealthConnectData() async {
+    List<Map<String, dynamic>> allRecords = [];
+
+    for (var dataType in types) {
+      DateTime startTimeRange =
+          DateTime.now().subtract(const Duration(days: 4));
+      DateTime endTimeRange = DateTime.now();
+
+      // Fetch records for the specified data type
+      var result = await HealthConnectFactory.getRecord(
+        type: dataType,
+        startTime: startTimeRange,
+        endTime: endTimeRange,
+      );
+
+      if (result['records'] != null && result['records'].isNotEmpty) {
+        var records = result['records'] as List;
+
+        // Process records for each data type
+        for (var record in records) {
+          Map<String, dynamic> recordMap = {
+            'type': dataType.name, // Store the type of the data
+            'startTime': DateTime.fromMillisecondsSinceEpoch(
+              (record['startTime']['epochSecond'] as int) * 1000,
+              isUtc: true,
+            ).toIso8601String(), // Store start time in ISO 8601 format
+            'endTime': DateTime.fromMillisecondsSinceEpoch(
+              (record['endTime']['epochSecond'] as int) * 1000,
+              isUtc: true,
+            ).toIso8601String(), // Store end time in ISO 8601 format
+          };
+
+          // Add specific fields based on the data type
+          switch (dataType) {
+            case HealthConnectDataType.Steps:
+              if (record['count'] != null) {
+                recordMap['steps'] = record['count'];
+              }
+              break;
+            case HealthConnectDataType.HeartRate:
+              if (record['samples'] != null && record['samples'].isNotEmpty) {
+                recordMap['heartRate'] = record['samples']
+                    .map((sample) {
+                      if (sample['beatsPerMinute'] != null) {
+                        return {
+                          'beatsPerMinute': sample['beatsPerMinute'],
+                          'time': DateTime.fromMillisecondsSinceEpoch(
+                            (sample['time']['epochSecond'] as int) * 1000,
+                            isUtc: true,
+                          ).toIso8601String(),
+                        };
+                      }
+                      return null; // Return null for invalid samples
+                    })
+                    .where(
+                        (sample) => sample != null) // Filter out null samples
+                    .toList();
+              }
+              break;
+            // Add cases for other HealthConnectDataTypes if needed
+            default:
+              if (record['value'] != null) {
+                recordMap['value'] = record['value']; // Only add if not null
+              }
+          }
+
+          // Only add to allRecords if the recordMap has at least one valid entry
+          if (recordMap.length > 2) {
+            // 2 is the minimum for 'type' and time fields
+            allRecords.add(recordMap); // Add the record to the list
+          }
+        }
+      }
+    }
+
+    return allRecords; // Return the list of all records
+  }
+
+  Future<void> sendAllDataToServer() async {
+    try {
+      // Fetch all the raw data from Health Connect
+      var allData = await fetchAllHealthConnectData();
+
+      // Check the structure of allData
+      print("Raw data fetched: $allData");
+
+      // URL of the Flask server
+      String apiUrl =
+          "http://192.168.0.109:5000/raw-data"; // Adjust the port if needed
+
+      // Convert the data to JSON and send it to the server
+      final response = await http.post(
+        Uri.parse(apiUrl),
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode(allData), // Sending raw data as JSON
+      );
+
+      // Check the response status code
+      if (response.statusCode == 200) {
+        print("Data sent successfully: ${response.body}");
+        onResultUpdate("Data sent successfully.");
+      } else {
+        print("Failed to send data. Status code: ${response.statusCode}");
+        print("Response body: ${response.body}");
+        onResultUpdate("Failed to send data.");
+      }
+    } catch (e) {
+      print("Error occurred while sending data: $e");
+      onResultUpdate("Error occurred while sending data.");
     }
   }
 }
