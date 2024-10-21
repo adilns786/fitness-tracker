@@ -3,6 +3,7 @@ import json
 import pickle
 from flask import Flask, request, jsonify
 import pandas as pd
+import numpy as np
 
 # Initialize Flask app
 app = Flask(__name__)
@@ -106,7 +107,29 @@ def handle_raw_data():
         df.to_json(json_filename, orient='records', lines=True)
         print(f"Filtered raw data saved to {json_filename}")
 
-        return jsonify({"message": "Raw data processed and saved successfully."}), 200
+        # Extract the latest heart rate value
+        heart_rate_data = df[df['type'] == 'HeartRate']
+
+        if not heart_rate_data.empty:
+            # Get the latest entry for HeartRate
+            latest_heart_rate_entry = heart_rate_data.iloc[-1]
+            beats_per_minute = latest_heart_rate_entry['value'][0]['beatsPerMinute']
+
+            # Prepare input for the model
+            # Assuming static values: [75, heartRate, 5.5, 0.8, 3, 1]
+            model_input = [75, beats_per_minute, 5.5, 0.8, 3, 1]
+
+            # Make prediction
+            input_array = np.array(model_input).reshape(1, -1)
+            prediction = model.predict(input_array)
+
+            # Convert prediction to a standard Python type (int or float)
+            prediction_value = int(prediction[0])  # Assuming your model outputs a single value
+
+            return jsonify({"message": "Raw data processed and saved successfully.", "prediction": prediction_value,"heartrate":beats_per_minute}), 200
+
+        else:
+            return jsonify({"message": "No heart rate data found."}), 404
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
