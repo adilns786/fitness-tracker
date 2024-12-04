@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "411245307494",
+    "project_id": "streens-10ea5",
+    "storage_bucket": "streens-10ea5.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:411245307494:android:84ff124493254ca89dafa7",
+        "android_client_info": {
+          "package_name": "com.example.stresslens"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCpjMrk1rO0AWI5HEWVJRCc4BydfeAIZ0s"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

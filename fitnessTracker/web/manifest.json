@@ -1,6 +1,6 @@
 {
-    "name": "fitnesstracker",
-    "short_name": "fitnesstracker",
+    "name": "stresslens",
+    "short_name": "stresslens",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

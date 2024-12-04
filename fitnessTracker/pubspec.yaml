@@ -34,29 +34,88 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.6
   flutter_health_connect: ^1.2.3
+  http: ^1.2.2
+  just_audio: ^0.9.12
+  firebase_core: ^3.5.0
+  firebase_auth: ^5.3.0 
+  file_picker: ^8.1.4
+  google_fonts: ^6.2.1
+  table_calendar: ^3.0.6
+  audioplayers: ^6.1.0  # For sound effects
+  confetti: ^0.8.0
+  fl_chart: ^0.69.2 # Use the latest version
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  http: ^0.13.3
+  http: ^1.2.2  # Use the latest resolvable version
+  just_audio: ^0.9.42
+  audioplayers: ^6.1.0
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
   # activated in the `analysis_options.yaml` file located at the root of your
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
-  flutter_lints: ^3.0.0
+  flutter_lints: ^5.0.0
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
-
-# The following section is specific to Flutter packages.
 flutter:
 
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
   # the material Icons class.
   uses-material-design: true
+  assets:
+    - assets/logo.png
+    - assets/stress_graph/stress_graph_image.png
+    - assets/user_image.png
+    - assets/music/birdsong.png
+    - assets/music/fireplace_glow.png
+    - assets/music/forest_dawn.png
+    - assets/music/mountain_breeze.png
+    - assets/music/calm_waves.png
+    - assets/music/gentle_winds.png
+    - assets/music/ocean_of_peace.png
+    - assets/music/soft_glow.png
+    - assets/music/thunderstorm_calm.png
+    - assets/music/tranquil_paths.png
+    - assets/music/electric_sunset.png
+    - assets/music/feel_the_flow.png
+    - assets/music/groove_wave.png
+    - assets/music/retro_vibes.png
+    - assets/music/soulful_symphony.png
+    - assets/feeling_image/relax.png
+    - assets/feeling_image/focus.png
+    - assets/feeling_image/calm.png
+    - assets/feeling_image/anxious.png
+    - assets/feeling_image/stressed.png
+    - assets/games/flower_bloom.png
+    - assets/games/seed.jpg
+    - assets/games/sprout.png
+    - assets/games/full_plant.jpg
+    - assets/games/chill_farm.png
+    - assets/games/pop.mp3
+    - assets/games/bubble_pop.png
+
+    # Music mp3 files
+    - assets/music/music_files/birdsong.mp3
+    - assets/music/music_files/fireplace_glow.mp3
+    - assets/music/music_files/forest_dawn.mp3
+    - assets/music/music_files/mountain_breeze.mp3
+    - assets/music/music_files/calm_waves.mp3
+    - assets/music/music_files/gentle_winds.mp3
+    - assets/music/music_files/ocean_of_peace.mp3
+    - assets/music/music_files/soft_glow.mp3
+    - assets/music/music_files/thunderstorm_calm.mp3
+    - assets/music/music_files/tranquil_paths.mp3
+    - assets/music/music_files/electric_sunset.mp3
+    - assets/music/music_files/feel_the_flow.mp3
+    - assets/music/music_files/groove_wave.mp3
+    - assets/music/music_files/retro_vibes.mp3
+    - assets/music/music_files/urban_melody.mp3
+    - assets/music/music_files/soulful_symphony.mp3
 
   # To add assets to your application, add an assets section, like this:
   # assets:
@@ -64,10 +123,10 @@ flutter:
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see
-  # https://flutter.dev/assets-and-images/#resolution-aware
+  # https://flutter.dev/to/resolution-aware-images
 
   # For details regarding adding assets from package dependencies, see
-  # https://flutter.dev/assets-and-images/#from-packages
+  # https://flutter.dev/to/asset-from-package
 
   # To add custom fonts to your application, add a fonts section here,
   # in this "flutter" section. Each entry in this list should have a
@@ -87,4 +146,4 @@ flutter:
   #         weight: 700
   #
   # For details regarding fonts from package dependencies,
-  # see https://flutter.dev/custom-fonts/#from-packages
+  # see https://flutter.dev/to/font-from-package
