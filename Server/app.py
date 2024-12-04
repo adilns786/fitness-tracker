@@ -4,6 +4,15 @@ import pickle
 from flask import Flask, request, jsonify
 import pandas as pd
 import numpy as np
+import requests
+from flask_cors import CORS
+import google.generativeai as genai
+
+# Replace with your actual Gemini API key
+GEMINI_API_KEY = "AIzaSyBcH3cs6V4J9SnYKM2DqWO5xTA72MyPOjw"
+# GEMINI_API_KEY = "your_api_key_here"  # Replace with your actual API key
+genai.configure(api_key=GEMINI_API_KEY)
+
 
 # Initialize Flask app
 app = Flask(__name__)
@@ -133,8 +142,44 @@ def handle_raw_data():
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+ 
+@app.route('/chat', methods=['POST'])
+def chat():
+    try:
+        # Parse incoming request data
+        data = request.get_json()
+        user_message = data.get('message')
+
+        # Check if the user message exists
+        if not user_message:
+            return jsonify({"error": "No message provided."}), 400
+
+        # Define the template for chatbot context
+        template_message = (
+            "You are an intelligent chatbot integrated into a stress-level detection and "
+            "recommendation app. Your role is to help users understand their stress levels, "
+            "provide tips to manage stress, and answer questions about stress-related topics. "
+            "Please ensure your responses are concise, empathetic, and actionable. "
+            "Keep in mind that the app's purpose is to assist users in managing their stress."
+        )
+
+        # Create a generative model instance
+        model = genai.GenerativeModel(model_name="gemini-1.5-flash")
+
+        # Generate a response using the Gemini API
+        response = model.generate_content(f"{template_message}\n\nUser: {user_message}")
+        
+        # Return the response text
+        return jsonify({"reply": response.text})
+
+    except Exception as e:
+        # Log the error message for debugging
+        print(f"Error occurred: {str(e)}")
+        return jsonify({"error": str(e)}), 500
+
 
 # Check if the script is executed directly
 if __name__ == '__main__':
+    CORS(app)  # Enable CORS for all routes
     # Start the Flask app and make it listen on all network interfaces (0.0.0.0)
     app.run(debug=True, host='0.0.0.0', port=5000)
