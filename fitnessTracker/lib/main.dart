@@ -6,7 +6,6 @@ import 'screens/navbar/games/chill_farm.dart';
 import 'screens/navbar/games/flower_bloom.dart';
 
 import 'screens/navbar/games/games.dart';
-import 'screens/navbar/games/snake_game.dart';
 
 import 'screens/navbar/music/music.dart';
 import 'screens/navbar/profile/profile.dart';
@@ -20,7 +19,6 @@ import 'screens/home/home.dart';
 import 'screens/navbar/games/bubble_pop.dart'; // Import BubbleWrapScreen file
 import 'backend/backend.dart';
 import 'backend/permissions.dart';
-import 'backend/record_display_logic.dart';
 import './screens/home/analyze.dart';
 
 void main() async {

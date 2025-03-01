@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'record_display_ui.dart'; // Importing the UI part of the RecordDisplay
-import 'permissions.dart';
 
 // void backend() {
 //   runApp(const MyApp());
