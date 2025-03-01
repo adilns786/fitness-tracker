@@ -9,13 +9,13 @@ from flask_cors import CORS
 import google.generativeai as genai
 
 # Load environment variables for sensitive data
-from dotenv import load_dotenv
-load_dotenv()
+# from dotenv import load_dotenv
+# load_dotenv()
 
 # Replace with your actual Gemini API key from environment variables
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
-if not GEMINI_API_KEY:
-    raise ValueError("No Gemini API key found. Please set the GEMINI_API_KEY environment variable.")
+GEMINI_API_KEY = "GEMINI_API_KEY"
+# if not GEMINI_API_KEY:
+    # raise ValueError("No Gemini API key found. Please set the GEMINI_API_KEY environment variable.")
 
 genai.configure(api_key=GEMINI_API_KEY)
 
