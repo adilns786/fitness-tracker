@@ -8,17 +8,26 @@ import requests
 from flask_cors import CORS
 import google.generativeai as genai
 
-# Replace with your actual Gemini API key
-GEMINI_API_KEY = "AIzaSyBcH3cs6V4J9SnYKM2DqWO5xTA72MyPOjw"
-# GEMINI_API_KEY = "your_api_key_here"  # Replace with your actual API key
-genai.configure(api_key=GEMINI_API_KEY)
+# Load environment variables for sensitive data
+from dotenv import load_dotenv
+load_dotenv()
 
+# Replace with your actual Gemini API key from environment variables
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+if not GEMINI_API_KEY:
+    raise ValueError("No Gemini API key found. Please set the GEMINI_API_KEY environment variable.")
+
+genai.configure(api_key=GEMINI_API_KEY)
 
 # Initialize Flask app
 app = Flask(__name__)
 
 # Load the machine learning model (random_forest_model.pkl)
-model = pickle.load(open('random_forest_model.pkl', 'rb'))
+try:
+    model = pickle.load(open('random_forest_model.pkl', 'rb'))
+except Exception as e:
+    print(f"Error loading the model: {e}")
+    model = None
 
 # Create a directory to store the received data
 DATA_DIR = 'data'
@@ -51,6 +60,9 @@ def predict():
         input_array = np.array(input_data).reshape(1, -1)
 
         # Use the loaded model to make a prediction
+        if model is None:
+            return jsonify({"error": "Model not loaded. Please check the server logs."}), 500
+
         prediction = model.predict(input_array)
 
         # Return the prediction as a JSON response
@@ -135,7 +147,7 @@ def handle_raw_data():
             # Convert prediction to a standard Python type (int or float)
             prediction_value = int(prediction[0])  # Assuming your model outputs a single value
 
-            return jsonify({"message": "Raw data processed and saved successfully.", "prediction": prediction_value,"heartrate":beats_per_minute}), 200
+            return jsonify({"message": "Raw data processed and saved successfully.", "prediction": prediction_value, "heartrate": beats_per_minute}), 200
 
         else:
             return jsonify({"message": "No heart rate data found."}), 404
@@ -182,4 +194,4 @@ def chat():
 if __name__ == '__main__':
     CORS(app)  # Enable CORS for all routes
     # Start the Flask app and make it listen on all network interfaces (0.0.0.0)
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    app.run(debug=False, host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
