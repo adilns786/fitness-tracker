@@ -266,7 +266,7 @@ class RecordDisplayLogic {
 
       // URL of the Flask server
       String apiUrl =
-          "http://192.168.41.180:5000/raw-data"; // Adjust the port if needed
+          "https://fitness-tracker-ua50.onrender.com/raw-data"; // Adjust the port if needed
 
       // Convert the data to JSON and send it to the server
       final response = await http.post(

@@ -32,23 +32,31 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
 
     try {
       final response = await http.post(
-        Uri.parse('http://192.168.41.180:5000/chat'),
+        Uri.parse('https://ecomentor.vercel.app/api/chat'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({'message': message}),
       );
 
       if (response.statusCode == 200) {
         final responseData = jsonDecode(response.body);
-        final botMessage = ChatMessage(
-          text: responseData['reply'],
-          sender: MessageSender.bot,
-          timestamp: DateTime.now(),
-        );
 
-        setState(() {
-          _messages.add(botMessage);
-        });
-        _scrollToBottom();
+        // Extract the 'response' field from the JSON
+        final botResponse = responseData['response'] as String?;
+
+        if (botResponse != null) {
+          final botMessage = ChatMessage(
+            text: botResponse,
+            sender: MessageSender.bot,
+            timestamp: DateTime.now(),
+          );
+
+          setState(() {
+            _messages.add(botMessage);
+          });
+          _scrollToBottom();
+        } else {
+          _handleError('No response from the bot.');
+        }
       } else {
         _handleError('Server error: ${response.statusCode}');
       }
@@ -105,7 +113,7 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
                 filled: true,
                 fillColor: Colors.grey[100],
                 contentPadding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(30),
                   borderSide: BorderSide.none,
@@ -195,8 +203,8 @@ class ChatMessage {
           color: isUser
               ? const Color(0xFF0B3534)
               : isSystem
-                  ? Colors.red[100]
-                  : Colors.grey[200],
+              ? Colors.red[100]
+              : Colors.grey[200],
           borderRadius: BorderRadius.circular(16),
         ),
         padding: const EdgeInsets.all(12),

@@ -56,7 +56,7 @@ class MyApp extends StatelessWidget {
           foregroundColor: Colors.white,
         ),
       ),
-      initialRoute: '/',
+      initialRoute: '/home',
       routes: <String, WidgetBuilder>{
         '/': (context) => const AuthWrapper(),
         '/home': (context) => const HomeScreen(),

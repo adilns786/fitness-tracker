@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
 
@@ -15,6 +16,7 @@ class _MusicScreenState extends State<MusicScreen> {
   int _currentIndex = 1; // Default to music being selected
   String _selectedGenre = 'All';
   String _searchQuery = ''; // Variable to hold the search query
+
   @override
   void initState() {
     super.initState();
@@ -124,7 +126,7 @@ class _MusicScreenState extends State<MusicScreen> {
       final matchesGenre =
           _selectedGenre == 'All' || music['genre'] == _selectedGenre;
       final matchesSearch =
-          music['title']!.toLowerCase().contains(_searchQuery.toLowerCase());
+      music['title']!.toLowerCase().contains(_searchQuery.toLowerCase());
       return matchesGenre && matchesSearch;
     }).toList();
   }
@@ -132,11 +134,8 @@ class _MusicScreenState extends State<MusicScreen> {
   Future<void> _playMusic(String title, String url) async {
     try {
       if (_currentlyPlayingTitle == title && _isPlaying) {
-        // Pause if the same song is playing
-        await _audioPlayer.pause();
-        setState(() {
-          _isPlaying = false;
-        });
+        // If already playing, do nothing here
+        return;
       } else {
         // Play new song or resume
         if (_currentlyPlayingTitle != title) {
@@ -153,6 +152,17 @@ class _MusicScreenState extends State<MusicScreen> {
     }
   }
 
+  Future<void> _pauseMusic() async {
+    try {
+      await _audioPlayer.pause();
+      setState(() {
+        _isPlaying = false;
+      });
+    } catch (e) {
+      print("Error pausing music: $e");
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -166,7 +176,7 @@ class _MusicScreenState extends State<MusicScreen> {
           // Curved Search Box
           Padding(
             padding:
-                const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+            const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
             child: Container(
               decoration: BoxDecoration(
                 color: Colors.white, // Background color of the search box
@@ -246,10 +256,13 @@ class _MusicScreenState extends State<MusicScreen> {
     bool isCurrentlyPlaying = _currentlyPlayingTitle == title && _isPlaying;
 
     return InkWell(
-      onTap: () {
+      onTap: () async {
         final musicItem =
-            musicList.firstWhere((item) => item['title'] == title);
-        _playMusic(title, musicItem['url']!);
+        musicList.firstWhere((item) => item['title'] == title);
+        // Start playing immediately
+        await _playMusic(title, musicItem['url']!);
+        // Show the popup with a blurred background
+        await _showMusicPopup(title, musicItem['image']!);
       },
       child: Card(
         elevation: 5,
@@ -275,7 +288,9 @@ class _MusicScreenState extends State<MusicScreen> {
                   ),
                 ),
                 Icon(
-                  isCurrentlyPlaying ? Icons.pause_circle : Icons.play_circle,
+                  isCurrentlyPlaying
+                      ? Icons.pause_circle
+                      : Icons.play_circle,
                   size: 40,
                   color: Colors.white,
                 ),
@@ -311,6 +326,60 @@ class _MusicScreenState extends State<MusicScreen> {
           ],
         ),
       ),
+    );
+  }
+
+  Future<void> _showMusicPopup(String title, String imagePath) async {
+    await showGeneralDialog(
+      context: context,
+      barrierLabel: "Music Popup",
+      barrierDismissible: false, // Prevent dismissing by tapping outside
+      barrierColor: Colors.black.withOpacity(0.5),
+      transitionDuration: const Duration(milliseconds: 300),
+      pageBuilder: (context, animation, secondaryAnimation) {
+        return BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+          child: Center(
+            child: Container(
+              padding: const EdgeInsets.all(20),
+              margin: const EdgeInsets.symmetric(horizontal: 20),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(15),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Image.asset(imagePath,
+                      width: 150, height: 150, fit: BoxFit.cover),
+                  const SizedBox(height: 20),
+                  Text(title,
+                      style: const TextStyle(
+                          fontWeight: FontWeight.bold, fontSize: 20)),
+                  const SizedBox(height: 20),
+                  IconButton(
+                    icon: const Icon(Icons.pause_circle, size: 50),
+                    onPressed: () async {
+                      // Pause the music and then close the popup
+                      await _pauseMusic();
+                      Navigator.of(context).pop();
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+      transitionBuilder: (context, animation, secondaryAnimation, child) {
+        return FadeTransition(
+          opacity: animation,
+          child: ScaleTransition(
+            scale: animation,
+            child: child,
+          ),
+        );
+      },
     );
   }
 
@@ -397,9 +466,9 @@ class _MusicScreenState extends State<MusicScreen> {
           ),
         ],
         selectedItemColor: Colors.white,
-        unselectedItemColor: Colors.green[300],
-        selectedLabelStyle: TextStyle(color: Colors.green[300]),
-        unselectedLabelStyle: TextStyle(color: Colors.green[300]),
+        unselectedItemColor: Colors.green,
+        selectedLabelStyle: TextStyle(color: Colors.green),
+        unselectedLabelStyle: TextStyle(color: Colors.green),
       ),
     );
   }
