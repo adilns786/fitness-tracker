@@ -1,0 +1,1 @@
+C:\Users\mrgon\AndroidStudioProjects\Integrated Fitness Tracker StressLens\fitness-tracker\fitnessTracker\build\app\intermediates\cxx\Debug\22554n1x\obj\armeabi-v7a
