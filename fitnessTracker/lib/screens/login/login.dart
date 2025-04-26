@@ -57,11 +57,11 @@ class _LoginScreenState extends State<LoginScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   // App Logo or Placeholder
-                  const CircleAvatar(
-                    radius: 50,
-                    backgroundImage: AssetImage(
-                        'assets/app_logo.png'), // Replace with your logo
-                  ),
+                  // const CircleAvatar(
+                  //   radius: 50,
+                  //   backgroundImage: AssetImage(
+                  //       'assets/app_logo.png'), // Replace with your logo
+                  // ),
                   const SizedBox(height: 20),
                   // Login Card
                   Card(

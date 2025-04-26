@@ -417,7 +417,7 @@ class _MusicScreenState extends State<MusicScreen> {
 
   Widget _buildBottomNavigationBar() {
     return SizedBox(
-      height: 90,
+      height: 80, // Set your desired height here
       child: BottomNavigationBar(
         backgroundColor: const Color(0xFF0B3534),
         currentIndex: _currentIndex,
@@ -425,12 +425,14 @@ class _MusicScreenState extends State<MusicScreen> {
           setState(() {
             _currentIndex = index;
           });
+          // Navigate to different screens based on index
           switch (_currentIndex) {
             case 0:
               Navigator.pushNamed(context, '/chatbot');
               break;
             case 1:
-              break; // Stay on Music
+
+              break;
             case 2:
               Navigator.pushNamed(context, '/home');
               break;
@@ -439,6 +441,9 @@ class _MusicScreenState extends State<MusicScreen> {
               break;
             case 4:
               Navigator.pushNamed(context, '/profile');
+              break;
+            case 5:
+              Navigator.pushNamed(context, '/demo');
               break;
           }
         },
@@ -464,11 +469,15 @@ class _MusicScreenState extends State<MusicScreen> {
             icon: Icon(Icons.person_outline),
             label: 'Profile',
           ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.settings),
+            label: 'demo',
+          ),
         ],
         selectedItemColor: Colors.white,
         unselectedItemColor: Colors.green,
-        selectedLabelStyle: TextStyle(color: Colors.green),
-        unselectedLabelStyle: TextStyle(color: Colors.green),
+        selectedLabelStyle: TextStyle(color: Colors.green[300]),
+        unselectedLabelStyle: TextStyle(color: Colors.green[300]),
       ),
     );
   }

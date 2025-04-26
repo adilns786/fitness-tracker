@@ -12,7 +12,7 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> {
   int _currentIndex = 4; // Default to profile being selected
   String? userEmail;
-  final String userName = "Admin";
+  String? userName ;
   final String profileImagePath = 'assets/user_image.png';
 
   @override
@@ -25,6 +25,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     User? user = FirebaseAuth.instance.currentUser;
     setState(() {
       userEmail = user?.email; // Fetch and set the user's email
+      userName = user?.displayName;
     });
   }
 
@@ -113,7 +114,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       required IconData icon,
       required Color color}) {
     return Card(
-      margin: const EdgeInsets.symmetric(vertical: 8),
+      margin: const EdgeInsets.symmetric(vertical: 12),
       elevation: 4,
       child: ListTile(
         leading: CircleAvatar(
@@ -150,7 +151,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF0B3534),
                 padding:
-                    const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
+                    const EdgeInsets.symmetric(vertical: 18, horizontal: 24),
               ),
               child: const Text('Edit Profile',
                   style: TextStyle(color: Colors.white)),
@@ -174,43 +175,69 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget _buildBottomNavigationBar() {
-    return BottomNavigationBar(
-      currentIndex: _currentIndex,
-      onTap: (int index) {
-        setState(() {
-          _currentIndex = index;
-        });
-        switch (index) {
-          case 0:
-            Navigator.pushNamed(context, '/chatbot');
-            break;
-          case 1:
-            Navigator.pushNamed(context, '/music');
-            break;
-          case 2:
-            Navigator.pushNamed(context, '/home');
-            break;
-          case 3:
-            Navigator.pushNamed(context, '/games');
-            break;
-          case 4:
-            break; // Stay on profile
-        }
-      },
-      type: BottomNavigationBarType.fixed,
-      items: const [
-        BottomNavigationBarItem(
-            icon: Icon(Icons.chat_bubble_outline), label: 'ChatBot'),
-        BottomNavigationBarItem(icon: Icon(Icons.music_note), label: 'Music'),
-        BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-        BottomNavigationBarItem(
-            icon: Icon(Icons.games_outlined), label: 'Games'),
-        BottomNavigationBarItem(
-            icon: Icon(Icons.person_outline), label: 'Profile'),
-      ],
-      selectedItemColor: Colors.white,
-      unselectedItemColor: Colors.green[300],
-      backgroundColor: const Color(0xFF0B3534),
+    return SizedBox(
+      height: 80, // Set your desired height here
+      child: BottomNavigationBar(
+        backgroundColor: const Color(0xFF0B3534),
+        currentIndex: _currentIndex,
+        onTap: (int index) {
+          setState(() {
+            _currentIndex = index;
+          });
+          // Navigate to different screens based on index
+          switch (_currentIndex) {
+            case 0:
+              Navigator.pushNamed(context, '/chatbot');
+              break;
+            case 1:
+              Navigator.pushNamed(context, '/music');
+              break;
+            case 2:
+              Navigator.pushNamed(context, '/home');
+              break;
+            case 3:
+              Navigator.pushNamed(context, '/games');
+              break;
+            case 4:
+              // Navigator.pushNamed(context, '/profile');
+              break;
+            case 5:
+              Navigator.pushNamed(context, '/demo');
+              break;
+          }
+        },
+        type: BottomNavigationBarType.fixed,
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.chat_bubble_outline),
+            label: 'ChatBot',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.music_note),
+            label: 'Music',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.games_outlined),
+            label: 'Games',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person_outline),
+            label: 'Profile',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.settings),
+            label: 'demo',
+          ),
+        ],
+        selectedItemColor: Colors.white,
+        unselectedItemColor: Colors.green,
+        selectedLabelStyle: TextStyle(color: Colors.green[300]),
+        unselectedLabelStyle: TextStyle(color: Colors.green[300]),
+      ),
     );
   }
 }

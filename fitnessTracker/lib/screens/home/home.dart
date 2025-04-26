@@ -4,6 +4,7 @@ import 'dart:async';
 import 'package:just_audio/just_audio.dart';
 import '../../backend/permissions.dart';
 import 'package:fl_chart/fl_chart.dart';
+import '../../screens/util/streak_service.dart';
 
 // Import for Timer
 
@@ -20,6 +21,23 @@ class _HomeScreenState extends State<HomeScreen> {
   int _start = 600; // 10 minutes in seconds
   List<Map<String, String>> recommendedMusic = [];
   String? selectedMood;
+  String _formatLastDone(DateTime? time) {
+    if (time == null) return "No activity yet";
+
+    final now = DateTime.now();
+    final diff = now.difference(time);
+
+    if (diff.inSeconds < 60) {
+      return "Updated just now";
+    } else if (diff.inMinutes < 60) {
+      return "Updated ${diff.inMinutes} minute(s) ago";
+    } else if (diff.inHours < 24) {
+      return "Updated ${diff.inHours} hour(s) ago";
+    } else {
+      return "Last done on ${time.day}/${time.month}/${time.year} at ${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}";
+    }
+  }
+
 
   final AudioPlayer _audioPlayer = AudioPlayer();
   bool _isPlaying = false;
@@ -30,7 +48,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _checkHealthConnectPermissions();
-    });
+    })
+    ;
   }
 
   Future<void> _checkHealthConnectPermissions() async {
@@ -685,6 +704,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       ],
                     ),
                   ),
+
                 );
               }),
             ],
@@ -859,7 +879,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildBottomNavigationBar() {
     return SizedBox(
-      height: 90, // Set your desired height here
+      height: 80, // Set your desired height here
       child: BottomNavigationBar(
         backgroundColor: const Color(0xFF0B3534),
         currentIndex: _currentIndex,
@@ -937,6 +957,7 @@ class _HomeScreenState extends State<HomeScreen> {
         ],
       ),
       backgroundColor: const Color(0xFFF3FFFF),
+
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -946,6 +967,80 @@ class _HomeScreenState extends State<HomeScreen> {
               _buildMeditationTimerSection(),
               const SizedBox(height: 20),
               _buildStressLevelSection(),
+              // 🔥 Streak Tracker Section
+              FutureBuilder(
+                future: Future.wait([
+                  StreakService.getStreak('journal'),
+                  StreakService.getStreak('meditation'),
+                  StreakService.getLastUpdateTime('journal'),  // NOTE: Using getLastUpdateTime()
+                  StreakService.getLastUpdateTime('meditation'),
+                ]),
+                builder: (context, snapshot) {
+                  if (!snapshot.hasData) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+
+                  final data = snapshot.data as List;
+                  final journalStreak = data[0] as int;
+                  final meditationStreak = data[1] as int;
+                  final journalDateTime = data[2] as DateTime?;
+                  final meditationDateTime = data[3] as DateTime?;
+
+                  return Container(
+                    margin: const EdgeInsets.symmetric(vertical: 20),
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFDAFBFF),
+                      borderRadius: BorderRadius.circular(18),
+                      boxShadow: const [
+                        BoxShadow(
+                          color: Colors.black12,
+                          blurRadius: 8,
+                          spreadRadius: 3,
+                          offset: Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          '🌟 Your Daily Streaks',
+                          style: TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF0B3534),
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+                        _buildStreakTile(
+                          icon: Icons.edit_note,
+                          title: "Journal Streak",
+                          streakCount: journalStreak,
+                          lastDone: _formatLastDone(journalDateTime),
+                          onPressed: () async {
+                            await StreakService.markCompleted('journal');
+                            setState(() {});
+                          },
+                        ),
+                        const SizedBox(height: 20),
+                        _buildStreakTile(
+                          icon: Icons.self_improvement,
+                          title: "Meditation Streak",
+                          streakCount: meditationStreak,
+                          lastDone: _formatLastDone(meditationDateTime),
+                          onPressed: () async {
+                            await StreakService.markCompleted('meditation');
+                            setState(() {});
+                          },
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+
+
               const SizedBox(height: 20),
               _buildJournalSection(), // Updated method name here
               const SizedBox(height: 20),
@@ -1004,4 +1099,68 @@ class _HomeScreenState extends State<HomeScreen> {
       bottomNavigationBar: _buildBottomNavigationBar(),
     );
   }
+}
+Widget _buildStreakTile({
+  required IconData icon,
+  required String title,
+  required int streakCount,
+  required String lastDone,
+  required VoidCallback onPressed,
+}) {
+  return Container(
+    padding: const EdgeInsets.all(16),
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(14),
+      boxShadow: const [
+        BoxShadow(
+          color: Colors.black12,
+          blurRadius: 5,
+          spreadRadius: 2,
+        ),
+      ],
+    ),
+    child: Row(
+      children: [
+        CircleAvatar(
+          radius: 24,
+          backgroundColor: Colors.teal.withOpacity(0.2),
+          child: Icon(icon, color: Colors.teal, size: 28),
+        ),
+        const SizedBox(width: 16),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                "Streak: $streakCount days\nLast done: $lastDone",
+                style: const TextStyle(
+                  fontSize: 13,
+                  color: Colors.black54,
+                ),
+              ),
+            ],
+          ),
+        ),
+        ElevatedButton(
+          onPressed: onPressed,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color(0xFF0B3534),
+            foregroundColor: Colors.white,
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          ),
+          child: const Text('Mark Done'),
+        ),
+      ],
+    ),
+  );
 }

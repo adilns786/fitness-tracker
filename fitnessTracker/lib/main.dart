@@ -4,10 +4,8 @@ import 'screens/home/qna_page/qna_page.dart';
 import 'screens/navbar/chatbot/chatbot.dart';
 import 'screens/navbar/games/chill_farm.dart';
 import 'screens/navbar/games/flower_bloom.dart';
-
+import 'screens/util/notification_service.dart';
 import 'screens/navbar/games/games.dart';
-import 'screens/navbar/games/snake_game.dart';
-
 import 'screens/navbar/music/music.dart';
 import 'screens/navbar/profile/profile.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -22,10 +20,13 @@ import 'backend/backend.dart';
 import 'backend/permissions.dart';
 import 'backend/record_display_logic.dart';
 import './screens/home/analyze.dart';
+import 'screens/util/notification_service.dart';
+
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
+  await NotificationService.init();
   runApp(const MyApp());
   startDataSync();
 }
@@ -66,11 +67,12 @@ class MyApp extends StatelessWidget {
         '/music': (context) => const MusicScreen(),
         '/games': (context) => const GamesScreen(),
         '/profile': (context) => const ProfileScreen(),
-        '/qna': (context) => QnaPage(), // Ensure const constructors
-        '/journal': (context) => JournalPage(), // Ensure const constructors
-        '/games': (context) => const GamesScreen(),
-        '/flower_bloom': (context) => FlowerBloomScreen(),
-        '/chill_farm': (context) =>
+        '/qna': (context) =>const QnaPage(),
+        '/journal': (context) =>const JournalPage(),
+        '/flower_bloom': (context) =>const FlowerBloomScreen(),
+        '/login': (context) => const LoginScreen(),
+
+        '/chill_farm': (context) =>const
             ChillFarmScreen(), // Route to Chill Farm screen
         '/bubble_pop': (context) => const BubbleWrapScreen(),
 
